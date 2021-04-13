@@ -19,6 +19,14 @@ impl From<&u8> for PngUnit {
     }
 }
 
+pub enum PngChannel {
+    RED(u8),
+    BLUE(u8),
+    GREEN(u8),
+    ALPHA(u8),
+    GRAY(u8)
+}
+
 pub struct PngImage {
     width: u32,
     height: u32,
@@ -26,6 +34,7 @@ pub struct PngImage {
     bit_depth: u8,
     // TODO: Add Significant Bits per Channel, based on channels
     // Consider that images can have a few different numbers of channels
+    png_channels: Vec<PngChannel>,
     compression_method: u8,
     filter_method: u8,
     interlace_method: u8,
@@ -41,6 +50,7 @@ impl PngImage {
             height: 0,
             color_type: 0,
             bit_depth: 0,
+            png_channels: Vec::new(),
             compression_method: 0,
             filter_method: 0,
             interlace_method: 0,
@@ -80,6 +90,14 @@ impl PngImage {
 
     pub fn get_bit_depth(&self) -> &u8 {
         &self.bit_depth
+    }
+
+    pub fn push_png_channel(&mut self, png_channel: PngChannel) {
+        self.png_channels.push(png_channel);
+    }
+
+    pub fn get_png_channels(&self) -> &Vec<PngChannel> {
+        &self.png_channels
     }
 
     pub fn set_compression_method(&mut self, compression_method: u8) {
