@@ -3,13 +3,14 @@ use std::fs;
 use structopt::StructOpt;
 use simple_logger::SimpleLogger;
 use log::LevelFilter;
-use log::{debug, trace};
+use log::{info, debug, trace};
 
 use image_analyzer::image_identifiers;
 use image_analyzer::image_identifiers::ImageType;
 use image_analyzer::image_analyzers::png::parse::collect_chunks;
 use image_analyzer::image_analyzers::png::analyze::analyze_chunk;
 use image_analyzer::image_analyzers::png::PngImage;
+use image_analyzer::image_analyzers::Image;
 
 const PRETTY_PRINT_WIDTH: u8 = 16;
 
@@ -77,6 +78,8 @@ fn main() {
         .or_else (|| image_identifiers::identify_image_by_bytes(&contents))
         .expect("Unable to determine file type!");
 
+    let final_image: Image;
+
     match image_type {
         ImageType::PNG => {
             debug!("Found a PNG!");
@@ -96,6 +99,10 @@ fn main() {
 
                 analyze_chunk(&chunk, &mut png_image);
             }
+
+            final_image = Image::from(png_image);
         }
     }
+
+    info!("Final image data: {:?}", final_image);
 }
