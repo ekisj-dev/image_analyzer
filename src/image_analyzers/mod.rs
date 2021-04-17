@@ -11,12 +11,26 @@ pub enum ImageUnit {
     UNKNOWN
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Pixel {
     red: u8,
     green: u8,
     blue: u8,
     alpha: u8
+}
+
+impl Display for Pixel {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{:3} {:3} {:3} {:3}", self.alpha, self.red, self.green, self.blue)
+    }
+}
+
+impl From<Pixel> for u32 {
+    fn from(pixel: Pixel) -> Self {
+        let (a, r, g, b) = (pixel.alpha as u32, pixel.red as u32, pixel.green as u32, pixel.blue as u32);
+
+        (a << 24) | (r << 16) | (g << 8) | b
+    }
 }
 
 impl Pixel {
@@ -26,6 +40,15 @@ impl Pixel {
             green,
             blue,
             alpha
+        }
+    }
+
+    pub fn empty() -> Pixel {
+        Pixel {
+            red: 0,
+            green: 0,
+            blue: 0,
+            alpha: 0
         }
     }
 
@@ -53,6 +76,27 @@ pub struct Image {
     height_in_units: f64,
     unit_specifier: ImageUnit,
     pixels: Vec<Vec<Pixel>>
+}
+
+impl Image {
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+    pub fn width_in_units(&self) -> f64 {
+        self.width_in_units
+    }
+    pub fn height_in_units(&self) -> f64 {
+        self.height_in_units
+    }
+    pub fn unit_specifier(&self) -> &ImageUnit {
+        &self.unit_specifier
+    }
+    pub fn pixels(&self) -> &Vec<Vec<Pixel>> {
+        &self.pixels
+    }
 }
 
 impl Display for Image {
