@@ -104,5 +104,5 @@ fn main() {
         }
     }
 
-    info!("Final image data: {:?}", final_image);
+    info!("Final image data: {}", final_image);
 }

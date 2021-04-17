@@ -1,4 +1,6 @@
 use crate::image_analyzers::png::{PngImage, PngUnit};
+use std::fmt::{Display, Formatter};
+use std::fmt;
 
 pub mod png;
 
@@ -12,12 +14,38 @@ pub enum ImageUnit {
 #[derive(Debug)]
 pub struct Pixel {
     red: u8,
-    blue: u8,
     green: u8,
+    blue: u8,
     alpha: u8
 }
 
-#[derive(Debug)]
+impl Pixel {
+    pub fn new(red: u8, green: u8, blue: u8, alpha: u8) -> Pixel {
+        Pixel {
+            red,
+            green,
+            blue,
+            alpha
+        }
+    }
+
+    pub fn red(&self) -> &u8 {
+        &self.red
+    }
+
+    pub fn green(&self) -> &u8 {
+        &self.green
+    }
+
+    pub fn blue(&self) -> &u8 {
+        &self.blue
+    }
+
+    pub fn alpha(&self) -> &u8 {
+        &self.alpha
+    }
+}
+
 pub struct Image {
     width: u32,
     height: u32,
@@ -25,6 +53,16 @@ pub struct Image {
     height_in_units: f64,
     unit_specifier: ImageUnit,
     pixels: Vec<Vec<Pixel>>
+}
+
+impl Display for Image {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Image: Width={}, Height={}, Width in Units={} {:?}, Height in Units={} {:?}",
+               self.width,
+               self.height,
+               self.width_in_units, self.unit_specifier,
+               self.height_in_units, self.unit_specifier)
+    }
 }
 
 impl From<PngImage> for Image {
@@ -38,7 +76,7 @@ impl From<PngImage> for Image {
                 PngUnit::METER => ImageUnit::METER,
                 _ => ImageUnit::UNKNOWN
             },
-            pixels: Vec::new()
+            pixels: png.move_pixels()
         }
     }
 }

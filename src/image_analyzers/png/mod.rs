@@ -1,4 +1,5 @@
 use crate::image_analyzers::png::PngUnit::{METER, UNKN};
+use crate::image_analyzers::Pixel;
 
 pub mod chunk;
 pub mod parse;
@@ -40,7 +41,8 @@ pub struct PngImage {
     interlace_method: u8,
     pixels_per_unit_x: u32,
     pixels_per_unit_y: u32,
-    pixels_per_unit_specifier: PngUnit
+    pixels_per_unit_specifier: PngUnit,
+    pixels: Vec<Vec<Pixel>>,
 }
 
 impl PngImage {
@@ -56,7 +58,8 @@ impl PngImage {
             interlace_method: 0,
             pixels_per_unit_x: 0,
             pixels_per_unit_y: 0,
-            pixels_per_unit_specifier: PngUnit::UNKN
+            pixels_per_unit_specifier: PngUnit::UNKN,
+            pixels: Vec::new()
         }
     }
 
@@ -146,5 +149,17 @@ impl PngImage {
 
     pub fn get_pixels_per_unit_specifier(&self) -> &PngUnit {
         &self.pixels_per_unit_specifier
+    }
+
+    pub fn set_pixels(&mut self, pixels: Vec<Vec<Pixel>>) {
+        self.pixels = pixels;
+    }
+
+    pub fn pixels(&self) -> &Vec<Vec<Pixel>> {
+        &self.pixels
+    }
+
+    pub fn move_pixels(self) -> Vec<Vec<Pixel>> {
+        self.pixels
     }
 }
