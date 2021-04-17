@@ -5,6 +5,8 @@ use simple_logger::SimpleLogger;
 use log::LevelFilter;
 use log::{info, debug, trace};
 
+use minifb::{Window, WindowOptions, Key};
+
 use image_analyzer::image_identifiers;
 use image_analyzer::image_identifiers::ImageType;
 use image_analyzer::image_analyzers::png::parse::collect_chunks;
@@ -105,4 +107,37 @@ fn main() {
     }
 
     info!("Final image data: {}", final_image);
+
+    let window_width: usize = final_image.width() as usize;
+    let window_height: usize = final_image.height() as usize;
+
+    let mut buffer: Vec<u32> = Vec::new();
+
+    for pixel_line in final_image.pixels() {
+        let mut pixel_line_rep = String::new();
+        for pixel in pixel_line {
+            buffer.push(u32::from(pixel.clone()));
+            pixel_line_rep.push_str(format!("{} ", pixel).as_str())
+        }
+        //trace!("{}", pixel_line_rep)
+    }
+
+    assert_eq!(buffer.len(), window_width * window_height);
+
+    let mut window = Window::new(
+        "Test - ESC to exit",
+        window_width,
+        window_height,
+        WindowOptions::default()
+    )
+        .unwrap_or_else(|e| {
+            panic!("{}", e)
+        });
+
+    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+
+    while window.is_open() && !window.is_key_down(Key::Escape) {
+        window.update_with_buffer(&buffer, window_width, window_height)
+            .unwrap();
+    }
 }
