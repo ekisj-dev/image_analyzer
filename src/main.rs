@@ -12,7 +12,8 @@ use image_analyzer::image_identifiers::ImageType;
 use image_analyzer::image_analyzers::png::parse::collect_chunks;
 use image_analyzer::image_analyzers::png::analyze::analyze_chunk;
 use image_analyzer::image_analyzers::png::PngImage;
-use image_analyzer::image_analyzers::Image;
+use image_analyzer::types::image::{Image, Pixel};
+use image_analyzer::types::color::{Color, BLACK};
 
 const PRETTY_PRINT_WIDTH: u8 = 16;
 
@@ -47,6 +48,8 @@ fn main() {
 
 
     SimpleLogger::new().with_level(log_level).init().unwrap();
+
+    info!("Starting image analysis...");
 
     let file_name = &opts.file_name;
 
@@ -113,19 +116,18 @@ fn main() {
 
     let mut buffer: Vec<u32> = Vec::new();
 
+    const WINDOW_BG_COLOR: Color = BLACK;
+
     for pixel_line in final_image.pixels() {
-        let mut pixel_line_rep = String::new();
         for pixel in pixel_line {
-            buffer.push(u32::from(pixel.clone()));
-            pixel_line_rep.push_str(format!("{} ", pixel).as_str())
+            buffer.push(u32::from(apply_alpha_to_pixel(pixel, &WINDOW_BG_COLOR)));
         }
-        //trace!("{}", pixel_line_rep)
     }
 
     assert_eq!(buffer.len(), window_width * window_height);
 
     let mut window = Window::new(
-        "Test - ESC to exit",
+        "Image Preview - ESC to exit",
         window_width,
         window_height,
         WindowOptions::default()
@@ -140,4 +142,14 @@ fn main() {
         window.update_with_buffer(&buffer, window_width, window_height)
             .unwrap();
     }
+}
+
+fn apply_alpha_to_pixel(pixel: &Pixel, background_color: &Color) -> Pixel {
+    let alpha_val = pixel.alpha() / u8::MAX;
+    Pixel::new(
+        alpha_val * pixel.red() + (1 - alpha_val) * background_color.red(),
+        alpha_val * pixel.green() + (1 - alpha_val) * background_color.green(),
+        alpha_val * pixel.blue() + (1 - alpha_val) * background_color.blue(),
+        pixel.alpha().clone()
+    )
 }

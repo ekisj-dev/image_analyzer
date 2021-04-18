@@ -1,10 +1,10 @@
 use crate::image_analyzers::png::PngImage;
-use super::filter::apply_filter;
+use crate::types::image::Pixel;
+use crate::image_analyzers::png::analyze::idat::filter::apply_filter;
 
 use log::{warn, error};
-use crate::types::image::Pixel;
 
-pub fn pixels_from_truecolor(png_image: &PngImage, decompressed: &Vec<u8>, with_alpha: bool) -> Vec<Vec<Pixel>> {
+pub fn pixels_from_grayscale(png_image: &PngImage, decompressed: &Vec<u8>, with_alpha: bool) -> Vec<Vec<Pixel>> {
     let image_width: usize = png_image.get_width().clone() as usize;
 
     let mut byte_index: usize = 0;
@@ -44,28 +44,12 @@ pub fn pixels_from_truecolor(png_image: &PngImage, decompressed: &Vec<u8>, with_
                 upper_left_pixel = prior_scanline.get(width_index as usize - 1).unwrap().clone();
             }
 
-            let red_val = decompressed.get(byte_index).
+            let gray_val = decompressed.get(byte_index).
                 unwrap_or_else(|| {
-                    error!("Error encountered when reading red value");
+                    error!("Error encountered when reading gray value");
                     &0
                 }).clone();
-            let red_val = apply_filter(filter_type, red_val, prior_pixel.red(), upper_pixel.red(), upper_left_pixel.red());
-            byte_index += 1;
-
-            let green_val = decompressed.get(byte_index)
-                .unwrap_or_else(|| {
-                    error!("Error encountered when reading green value");
-                    &0
-                }).clone();
-            let green_val = apply_filter(filter_type, green_val, prior_pixel.green(), upper_pixel.green(), upper_left_pixel.green());
-            byte_index += 1;
-
-            let blue_val = decompressed.get(byte_index)
-                .unwrap_or_else(|| {
-                    error!("Error encountered when reading blue value");
-                    &0
-                }).clone();
-            let blue_val = apply_filter(filter_type, blue_val, prior_pixel.blue(), upper_pixel.blue(), upper_left_pixel.blue());
+            let gray_val = apply_filter(filter_type, gray_val, prior_pixel.red(), upper_pixel.red(), upper_left_pixel.red());
             byte_index += 1;
 
             let alpha_val: u8;
@@ -82,7 +66,7 @@ pub fn pixels_from_truecolor(png_image: &PngImage, decompressed: &Vec<u8>, with_
                 alpha_val = u8::MAX;
             }
 
-            let new_pixel = Pixel::new(red_val, green_val, blue_val, alpha_val);
+            let new_pixel = Pixel::new(gray_val, gray_val, gray_val, alpha_val);
 
             scanline.push(new_pixel);
         }

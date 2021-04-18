@@ -32,7 +32,7 @@ fn paeth(a: u8, b: u8, c: u8) -> u8 {
     let large_a: i16 = a as i16;
     let large_b: i16 = b as i16;
     let large_c: i16 = c as i16;
-    let paeth: i16 = (large_a + large_b - large_c);
+    let paeth: i16 = large_a + large_b - large_c;
 
     let paeth_a = (paeth - large_a).abs();
     let paeth_b = (paeth - large_b).abs();
